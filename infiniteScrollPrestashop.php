@@ -64,9 +64,9 @@ class infiniteScrollPrestashop extends Module
             $array = array_intersect($controllers, $this->controllersScrollable);
 
             $data = [
-                'btn_text' => Tools::getValue('btn_text'),
-                'btn_color' => Tools::getValue('btn_color'),
-                'scroll_type' => Tools::getValue('scroll_type'),
+                'btn_text' => Tools::getValue('btn_text') ?: 'Load more...',
+                'btn_color' => Tools::getValue('btn_color') ?: '#000000',
+                'scroll_type' => Tools::getValue('scroll_type') ?: '1',
                 'controllers_enabled' => $array
             ];
 
