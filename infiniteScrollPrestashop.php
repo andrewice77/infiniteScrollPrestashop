@@ -67,7 +67,10 @@ class infiniteScrollPrestashop extends Module
                 'btn_text' => Tools::getValue('btn_text') ?: 'Load more...',
                 'btn_color' => Tools::getValue('btn_color') ?: '#000000',
                 'scroll_type' => Tools::getValue('scroll_type') ?: '1',
-                'controllers_enabled' => $array
+                'controllers_enabled' => $array,
+                'sel_container' => Tools::getValue('sel_container') ?: '.product_list',
+                'sel_pagination' => Tools::getValue('sel_pagination') ?: '.pagination',
+                'sel_items' => Tools::getValue('sel_items') ?: '.product-miniature',
             ];
 
             Configuration::updateValue('INFINITE_SCROLL_PS', json_encode($data));
@@ -103,6 +106,24 @@ class infiniteScrollPrestashop extends Module
                         'type'      => 'color',
                         'label'     => $this->trans('Color button', [], 'Modules.infiniteScrollPs.Admin'),
                         'name'      => 'btn_color',
+                        'class'     => 'fixed-width-md',
+                    ],
+                    [
+                        'type'      => 'text',
+                        'label'     => $this->trans('Selector of container', [], 'Modules.infiniteScrollPs.Admin'),
+                        'name'      => 'sel_container',
+                        'class'     => 'fixed-width-md',
+                    ],
+                    [
+                        'type'      => 'text',
+                        'label'     => $this->trans('Selector of pagination', [], 'Modules.infiniteScrollPs.Admin'),
+                        'name'      => 'sel_pagination',
+                        'class'     => 'fixed-width-md',
+                    ],
+                    [
+                        'type'      => 'text',
+                        'label'     => $this->trans('Selector of single product in list', [], 'Modules.infiniteScrollPs.Admin'),
+                        'name'      => 'sel_items',
                         'class'     => 'fixed-width-md',
                     ],
                     [
@@ -161,26 +182,55 @@ class infiniteScrollPrestashop extends Module
     }
 
 
-    public function hookDisplayHeader(  )
+    public function hookDisplayHeader( $params )
     {
-        return $this->displayInfiniteScroll();
+        // Here we have assets to implement for controllers enabled
+        if( false !== $this->getCurrentController() ){
+
+            $this->context->controller->registerStylesheet(
+                'infinite-scroll-ps',
+                'modules/' . $this->name . '/views/css/infinite-scroll-ps.css',
+                [
+                    'media' => 'all',
+                    'priority' => 200,
+                ]
+            );
+
+            Media::addJsDef([
+                'infinite_scroll_ps' => [
+                    'btn_text' => $this->getParams()['btn_text'],
+                    'btn_color' => $this->getParams()['btn_color'],
+                    'scroll_type' => $this->getParams()['scroll_type'],
+                    'sel_pagination' => $this->getParams()['sel_pagination'],
+                    'sel_items' => $this->getParams()['sel_items'],
+                ]
+            ]);
+
+
+            // Add js external library
+            $this->context->controller->registerJavascript(
+                'infinite-scroll',
+                '//unpkg.com/@webcreate/infinite-ajax-scroll/dist/infinite-ajax-scroll.min.js',
+                [
+                    'position' => 'bottom',
+                    'priority' => 200,
+                ]
+            );
+
+
+            $this->context->controller->registerJavascript(
+                'infinite-scroll-ps-custom',
+                'modules/' . $this->name . '/views/js/infinite-scroll-ps.js',
+                [
+                    'position' => 'bottom',
+                    'priority' => 210,
+                ]
+            );
+
+
+        }
+
     }
-
-    public function hookDisplayFooter(  )
-    {
-        return $this->displayInfiniteScroll();
-    }
-
-
-    public function displayInfiniteScroll()
-    {
-        // Check controllers enabled
-
-        // Include infinite scroll js and functionality
-        return '';
-
-    }
-
 
     /**================ PRIVATE METHODS  ================*/
     private function initParams()
@@ -189,7 +239,10 @@ class infiniteScrollPrestashop extends Module
             'btn_text' => 'Load More...',
             'btn_color' => '#000000',
             'scroll_type' => '1',
-            'controllers_enabled' => $this->controllersScrollable
+            'controllers_enabled' => $this->controllersScrollable,
+            'sel_container' => '.products', // Selector for container
+            'sel_pagination' => '.pagination', // Selector for pagination
+            'sel_items' => '.product-miniature', // Selector for single product in list
         ];
 
         return Configuration::updateValue('INFINITE_SCROLL_PS', json_encode($data));
@@ -233,6 +286,26 @@ class infiniteScrollPrestashop extends Module
         return $controllers;
     }
 
+    private function getCurrentController()
+    {
 
+        //--------------------------------------------------//
+        //  Get current controller from context
+        $controller = Context::getContext()->controller->php_self;
+
+        //--------------------------------------------------//
+        //  Get controllers enabled on db
+        $selected = json_decode(Configuration::get('INFINITE_SCROLL_PS'), true);
+
+        //--------------------------------------------------//
+        //  Check if current controller is enabled
+        if( !empty($selected['controllers_enabled']) ){
+            if( !in_array($controller, $selected['controllers_enabled']) ){
+                return false;
+            }
+        }
+
+        return $controller;
+    }
 
 }
