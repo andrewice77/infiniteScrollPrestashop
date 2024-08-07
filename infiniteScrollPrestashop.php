@@ -1,20 +1,17 @@
 <?php
-if (!defined('_PS_VERSION_')) {
+if (!defined('_PS_VERSION_'))
     exit;
-}
 
 class infiniteScrollPrestashop extends Module
 {
-
     protected $controllersScrollable;
 
     public function __construct()
     {
-
         $this->name = 'infiniteScrollPrestashop';
         $this->tab = 'front_office_features';
         $this->version = '1.0.0';
-        $this->author = 'AndrewIce77';
+        $this->author = 'AndrewIcE';
         $this->need_instance = 0;
         $this->bootstrap = true;
 
@@ -36,14 +33,12 @@ class infiniteScrollPrestashop extends Module
         ];
     }
 
-
     public function install()
     {
         return  parent::install() &&
                 $this->registerHook('displayHeader') &&
                 $this->registerHook('displayFooter') &&
                 $this->initParams();
-
     }
 
     public function uninstall()
@@ -51,7 +46,6 @@ class infiniteScrollPrestashop extends Module
         Configuration::deleteByName('INFINITE_SCROLL_PS');
         return parent::uninstall();
     }
-
 
     public function postProcess()
     {
@@ -64,23 +58,21 @@ class infiniteScrollPrestashop extends Module
             $array = array_intersect($controllers, $this->controllersScrollable);
 
             $data = [
-                'btn_text' => Tools::getValue('btn_text') ?: 'Load more...',
-                'btn_color' => Tools::getValue('btn_color') ?: '#000000',
-                'scroll_type' => Tools::getValue('scroll_type') ?: '1',
-                'controllers_enabled' => $array,
-                'sel_container' => Tools::getValue('sel_container') ?: '.product_list',
-                'sel_pagination' => Tools::getValue('sel_pagination') ?: '.pagination',
-                'sel_items' => Tools::getValue('sel_items') ?: '.product-miniature',
+                'btn_text'              => Tools::getValue('btn_text') ?: 'Load more...',
+                'btn_color'             => Tools::getValue('btn_color') ?: '#000000',
+                'scroll_type'           => Tools::getValue('scroll_type') ?: '1',
+                'controllers_enabled'   => $array,
+                'sel_container'         => Tools::getValue('sel_container') ?: '.product_list',
+                'sel_pagination'        => Tools::getValue('sel_pagination') ?: '.pagination',
+                'sel_items'             => Tools::getValue('sel_items') ?: '.product-miniature',
             ];
 
             Configuration::updateValue('INFINITE_SCROLL_PS', json_encode($data));
-
 
             return $this->displayConfirmation($this->trans('The settings have been updated.', [], 'Admin.Notifications.Success'));
         }
         return '';
     }
-
 
     public function getContent()
     {
@@ -140,7 +132,7 @@ class infiniteScrollPrestashop extends Module
                                 ],
                                 [
                                     'id_option' => '2',
-                                    'name' => $this->trans('Manually', [], 'Modules.infiniteScrollPs.Admin'),
+                                    'name' => $this->trans('Manually with button', [], 'Modules.infiniteScrollPs.Admin'),
                                 ]
                             ],
                             'id'    => 'id_option',
@@ -181,7 +173,6 @@ class infiniteScrollPrestashop extends Module
         return $helper->generateForm([$fields_form]);
     }
 
-
     public function hookDisplayHeader( $params )
     {
         // Here we have assets to implement for controllers enabled
@@ -189,7 +180,7 @@ class infiniteScrollPrestashop extends Module
 
             $this->context->controller->registerStylesheet(
                 'infinite-scroll-ps',
-                'modules/' . $this->name . '/views/css/infinite-scroll-ps.css',
+                'modules/' . $this->name . '/views/assets/css/infinite-scroll-ps.css',
                 [
                     'media' => 'all',
                     'priority' => 200,
@@ -206,29 +197,30 @@ class infiniteScrollPrestashop extends Module
                 ]
             ]);
 
-
             // Add js external library
             $this->context->controller->registerJavascript(
                 'infinite-scroll',
-                '//unpkg.com/@webcreate/infinite-ajax-scroll/dist/infinite-ajax-scroll.min.js',
+                'modules/' . $this->name . '/views/assets/js/infinite-ajax-scroll.min.js',
                 [
                     'position' => 'bottom',
                     'priority' => 200,
                 ]
             );
 
-
             $this->context->controller->registerJavascript(
                 'infinite-scroll-ps-custom',
-                'modules/' . $this->name . '/views/js/infinite-scroll-ps.js',
+                'modules/' . $this->name . '/views/assets/js/infinite-scroll-ps.js',
                 [
                     'position' => 'bottom',
                     'priority' => 210,
                 ]
             );
-
-
         }
+
+    }
+
+    public function hookDisplayFooter( $params )
+    {
 
     }
 
