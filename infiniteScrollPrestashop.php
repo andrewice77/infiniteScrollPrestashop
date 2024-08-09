@@ -25,7 +25,6 @@ class infiniteScrollPrestashop extends Module
         $this->ps_versions_compliancy = array('min' => '1.7.1.0', 'max' => _PS_VERSION_);
 
         $this->controllersScrollable = [
-            'index',
             'category',
             'supplier',
             'manufacturer',
@@ -147,6 +146,7 @@ class infiniteScrollPrestashop extends Module
                     ],
                 ],
                 'submit' => [
+                    'id'        => 'submitInfiniteScrollPs',
                     'title'     => $this->trans('Save', [], 'Admin.Actions'),
                 ],
             ]
@@ -187,13 +187,16 @@ class infiniteScrollPrestashop extends Module
                 ]
             );
 
+            $params = $this->getParams();
+
             Media::addJsDef([
                 'infinite_scroll_ps' => [
-                    'btn_text' => $this->getParams()['btn_text'],
-                    'btn_color' => $this->getParams()['btn_color'],
-                    'scroll_type' => $this->getParams()['scroll_type'],
-                    'sel_pagination' => $this->getParams()['sel_pagination'],
-                    'sel_items' => $this->getParams()['sel_items'],
+                    'btn_text' => $params['btn_text'],
+                    'btn_color' => $params['btn_color'],
+                    'scroll_type' => $params['scroll_type'],
+                    'sel_container' => $params['sel_container'],
+                    'sel_pagination' => $params['sel_pagination'],
+                    'sel_items' => $params['sel_items'],
                 ]
             ]);
 
@@ -216,7 +219,6 @@ class infiniteScrollPrestashop extends Module
                 ]
             );
         }
-
     }
 
     public function hookDisplayFooter( $params )

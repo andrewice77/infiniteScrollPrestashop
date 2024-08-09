@@ -21,7 +21,7 @@
                     </td>
                     <td>
                         <!-- Controllers selected -->
-                        <select id="controllers_select_2" name="controllers_enabled" class="input-large" multiple>
+                        <select id="controllers_select_2" name="controllers_enabled[]" class="input-large" multiple>
                             {if isset($controllers.selected) && !empty($controllers.selected)}
                                 {foreach from=$controllers.selected key=name item=controller}
                                     <option value="{$name}">{$controller}</option>
@@ -42,26 +42,28 @@
             {literal}
 
                 function removeControllersSelection(item) {
-                    const id = $(item).attr('id').replace('_remove', '');
+                    var id = $(item).attr('id').replace('_remove', '');
                     $(`#${id}_2 option:selected`).remove().appendTo(`#${id}_1`);
                 }
 
                 function addControllersSelection(item) {
-                    const id = $(item).attr('id').replace('_add', '');
+                    var id = $(item).attr('id').replace('_add', '');
                     $(`#${id}_1 option:selected`).remove().appendTo(`#${id}_2`);
                 }
+                jQuery(document).ready(function($) {
+                    $('#submitInfiniteScrollPs').on('click', function (e) {
+                        e.preventDefault();
 
-                $('submitInfiniteScrollPs').submit(function(){
-                    $('#controllers_select_2 option').each(function(i){
-                        $(this).prop('selected', true);
+                        $('#controllers_select_2 option').each(function (i) {
+                            $(this).prop('selected', true);
+                        });
+
+                        $('#controllers_select_1 option').each(function (i) {
+                            $(this).prop('selected', false);
+                        });
+                        $(this).parent().parent().parent().submit();
                     });
-
-                    $('#controllers_select_1 option').each(function(i){
-                        $(this).prop('selected', false);
-                    });
-
                 });
-
             {/literal}
         </script>
     {/if}
